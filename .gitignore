@@ -1,6 +1,7 @@
 target
 .direnv
 local.db
+cookies.txt
 
 # Logs
 logs
