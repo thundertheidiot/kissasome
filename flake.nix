@@ -1,15 +1,39 @@
 {
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
-    { nixpkgs, ... }:
+    { nixpkgs, rust-overlay, ... }:
     let
       lib = nixpkgs.lib;
 
       forAllSystems =
-        f: lib.genAttrs lib.systems.flakeExposed (system: f nixpkgs.legacyPackages."${system}");
+        f:
+        lib.genAttrs lib.systems.flakeExposed (
+          system:
+          f (
+            import nixpkgs {
+              inherit system;
+              overlays = [ (import rust-overlay) ];
+            }
+          )
+        );
+
+      rustToolchain =
+        pkgs:
+        pkgs.rust-bin.stable.latest.default.override {
+          extensions = [
+            "rust-src"
+            "rust-analyzer"
+            "clippy"
+            "rustfmt"
+          ];
+        };
     in
     {
       packages = forAllSystems (pkgs: { });
@@ -18,7 +42,17 @@
         pkgs:
         pkgs.mkShell {
           packages = with pkgs; [
+            # backend
+            (rustToolchain pkgs)
+
             sea-orm-cli
+
+            # sqlite
+            pkg-config
+            sqlite
+            gcc
+
+            # frontend
           ];
         }
       );
