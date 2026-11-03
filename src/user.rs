@@ -11,7 +11,7 @@ use sea_orm::{ActiveValue::Set, entity::prelude::*};
 use serde::{Deserialize, Serialize};
 
 fn validate_password(password: &str) -> bool {
-    password.len() > 8
+    password.len() > 7
         && password.chars().any(|c| c.is_ascii_digit())
         && password.chars().any(|c| c.is_uppercase())
         && password.chars().any(|c| c.is_lowercase())
