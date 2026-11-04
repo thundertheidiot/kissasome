@@ -1,7 +1,6 @@
 use crate::{AppState, entity::users};
 use actix_session::Session;
 use actix_web::{
-    Either::{self, Left, Right},
     HttpResponse, Responder, get, post,
     web::{Data, Json},
 };
@@ -13,8 +12,8 @@ use serde::{Deserialize, Serialize};
 fn validate_password(password: &str) -> bool {
     password.len() > 7
         && password.chars().any(|c| c.is_ascii_digit())
-        && password.chars().any(|c| c.is_uppercase())
-        && password.chars().any(|c| c.is_lowercase())
+        && password.chars().any(char::is_uppercase)
+        && password.chars().any(char::is_lowercase)
 }
 
 pub async fn try_register(
@@ -89,7 +88,7 @@ async fn login(
 ) -> impl Responder {
     match try_login(&state.conn, &body.username, &body.password).await {
         Ok(Some(user)) => match session.insert("user_id", user.id) {
-            Ok(_) => HttpResponse::Ok(),
+            Ok(()) => HttpResponse::Ok(),
             _ => HttpResponse::BadRequest(),
         },
         _ => HttpResponse::Unauthorized(),
@@ -104,19 +103,21 @@ struct GetUserResp {
 
 #[get("/user/get")]
 async fn get(state: Data<AppState>, session: Session) -> impl Responder {
-    if let Ok(Some(uid)) = session.get::<i64>("user_id") {
-        if let Ok(Some(user)) = users::Entity::find_by_id(uid).one(&state.conn).await {
-            return HttpResponse::Ok().json(GetUserResp {
-                id: user.id,
-                username: user.username,
-            });
-        }
+    if let Ok(Some(uid)) = session.get::<i64>("user_id")
+        && let Ok(Some(user)) = users::Entity::find_by_id(uid).one(&state.conn).await
+    {
+        HttpResponse::Ok().json(GetUserResp {
+            id: user.id,
+            username: user.username,
+        })
+    } else {
+        HttpResponse::Unauthorized().into()
     }
-
-    HttpResponse::Unauthorized().into()
 }
 
 mod test {
+    #![allow(unused_imports)]
+
     use migration::{Migrator, MigratorTrait};
     use sea_orm::Database;
 

@@ -1,3 +1,5 @@
+#![deny(clippy::pedantic)]
+#![allow(clippy::missing_errors_doc)]
 use std::env;
 
 use actix_files::Files;
@@ -42,7 +44,7 @@ async fn main() -> anyhow::Result<()> {
     Migrator::up(&conn, None).await?;
 
     let session_key = env::var("SESSION_KEY")?;
-    let session_key = Key::from(&session_key.as_bytes());
+    let session_key = Key::from(session_key.as_bytes());
 
     let state = AppState { conn };
 

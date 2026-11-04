@@ -42,6 +42,8 @@
         pkgs:
         pkgs.mkShell {
           packages = with pkgs; [
+            make
+
             # backend
             (rustToolchain pkgs)
 
@@ -53,6 +55,7 @@
             gcc
 
             # frontend
+            npm
           ];
         }
       );
