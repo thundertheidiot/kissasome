@@ -17,5 +17,7 @@ body {
   min-height: 100vh;
   background: var(--bg);
   color: var(--text);
-  font: 15px/1.5 system-ui, sans-serif;
+  font:
+    15px/1.5 system-ui,
+    sans-serif;
 }

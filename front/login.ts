@@ -1,4 +1,4 @@
-import "./styles/login.css" 
+import "./styles/login.css";
 
 const form = document.querySelector<HTMLFormElement>("#login-form")!;
 const username = document.querySelector<HTMLInputElement>("#username")!;
@@ -16,11 +16,32 @@ reveal.addEventListener("click", () => {
 });
 
 // login button press
-form.addEventListener("submit", (e) => {
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
   error.hidden = true;
-  // TODO: login jutut
-  
+  submit.disabled = true;
+  try {
+    const res = await fetch("/api/user/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username: username.value,
+        password: password.value,
+      }),
+    });
+
+    if (res.ok) {
+      window.location.href = "/";
+      return;
+    }
+
+    if (res.status === 401) showError("Wrong username or password.");
+    else showError(`Login failed (${res.status})`);
+  } catch {
+    showError("Could not reach the server.");
+  } finally {
+    submit.disabled = false;
+  }
 });
 
 // a func for errors to be shown
