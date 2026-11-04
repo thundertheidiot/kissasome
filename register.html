@@ -1,39 +1,60 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8">
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg">
-		<link href="/front/style.css" rel="stylesheet">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>register</title>
-	</head>
-    <body>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link href="/front/style.css" rel="stylesheet" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>register</title>
+  </head>
+  <body>
     <main class="login">
-        <form class="login__card" id="login-form">
+      <form class="login__card" id="login-form">
+        <div class="field">
+          <label class="field__label" for="username">Username</label>
+          <input
+            class="field__input"
+            id="username"
+            name="username"
+            type="text"
+            placeholder="username"
+            autocomplete="username"
+            required
+          />
+        </div>
 
-            <div class="field">
-                <label class="field__label" for="username">Username</label>
-                <input class="field__input" id="username" name="username" type="text"
-                placeholder="username" autocomplete="username" required>
-            </div>
-
-            <div class="field">
-                <label class="field__label" for="password">Password</label>
-                <div class="field__group">
-                    <input class="field__input" id="password" name="password" type="password" placeholder="********" autocomplete="current-password" required>
-                    <button class="field__reveal" type="button" id="reveal" aria-label="Show password">Show</button>
-                </div>
-            </div>
+        <div class="field">
+          <label class="field__label" for="password">Password</label>
+          <div class="field__group">
+            <input
+              class="field__input"
+              id="password"
+              name="password"
+              type="password"
+              placeholder="********"
+              autocomplete="current-password"
+              required
+            />
+            <button
+              class="field__reveal"
+              type="button"
+              id="reveal"
+              aria-label="Show password"
+            >
+              Show
+            </button>
+          </div>
+        </div>
 
         <p class="login__error" id="error" role="alert" hidden></p>
 
         <button class="login__submit" type="submit">Register</button>
         <p class="login__switch">
-            Already have an account? <a href="/login.html">Sign in here</a>
+          Already have an account? <a href="/login.html">Sign in here</a>
         </p>
-        </form>
+      </form>
     </main>
 
     <script type="module" src="/front/register.ts"></script>
-    </body>
+  </body>
 </html>

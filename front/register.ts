@@ -1,4 +1,4 @@
-import "./styles/login.css" 
+import "./styles/login.css";
 
 const form = document.querySelector<HTMLFormElement>("#login-form")!;
 const username = document.querySelector<HTMLInputElement>("#username")!;
@@ -6,7 +6,6 @@ const password = document.querySelector<HTMLInputElement>("#password")!;
 const reveal = document.querySelector<HTMLButtonElement>("#reveal")!;
 const submit = document.querySelector<HTMLButtonElement>(".login__submit")!;
 const error = document.querySelector<HTMLParagraphElement>("#error")!;
-
 
 // show & hide passwd
 reveal.addEventListener("click", () => {
@@ -24,7 +23,7 @@ form.addEventListener("submit", async (e) => {
   try {
     const res = await fetch("/api/user/register", {
       method: "POST",
-      headers: {"Content-Type": "application/json"},
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         username: username.value,
         password: password.value,
@@ -39,7 +38,7 @@ form.addEventListener("submit", async (e) => {
     if (res.status === 400) showError(await res.text());
     else showError(`Registration failed (${res.status})`);
   } catch {
-      showError("Could not reach the server.");
+    showError("Could not reach the server.");
   } finally {
     submit.disabled = false;
   }

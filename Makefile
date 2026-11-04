@@ -1,3 +1,3 @@
 lint:
-	eslint .
+	npm run lint
 	cargo clippy
