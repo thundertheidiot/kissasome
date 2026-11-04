@@ -6,6 +6,7 @@ use actix_files::Files;
 use actix_session::SessionMiddleware;
 use actix_session::storage::CookieSessionStore;
 use actix_web::cookie::Key;
+use actix_web::middleware::from_fn;
 use actix_web::web::Data;
 use actix_web::{App, HttpResponse, HttpServer, Responder, get, web};
 use migration::Migrator;
@@ -17,6 +18,7 @@ use crate::user::{get, login, register};
 
 pub mod entity;
 pub mod user;
+pub mod master_password;
 
 #[derive(Serialize)]
 struct Message {
@@ -51,6 +53,7 @@ async fn main() -> anyhow::Result<()> {
     HttpServer::new(move || {
         App::new()
             .app_data(Data::new(state.clone()))
+            .wrap(from_fn(master_password::basic_auth))
             .wrap(SessionMiddleware::new(
                 CookieSessionStore::default(),
                 session_key.clone(),

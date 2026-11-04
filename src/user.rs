@@ -22,7 +22,7 @@ pub async fn try_register(
     password: &str,
 ) -> anyhow::Result<()> {
     if !validate_password(password) {
-        return Err(anyhow!("password doesn't meet requirements"));
+        return Err(anyhow!("Password doesn't meet requirements"));
     }
 
     let argon2 = Argon2::default();
@@ -76,7 +76,7 @@ struct ApiUserRequest {
 async fn register(body: Json<ApiUserRequest>, state: Data<AppState>) -> impl Responder {
     match try_register(&state.conn, &body.username, &body.password).await {
         Ok(()) => HttpResponse::Created().finish(),
-        Err(e) => HttpResponse::BadRequest().body(format!("registration failed: {e:?}")),
+        Err(e) => HttpResponse::BadRequest().body(format!("Registration failed: {e:?}")),
     }
 }
 
@@ -86,12 +86,17 @@ async fn login(
     state: Data<AppState>,
     session: Session,
 ) -> impl Responder {
+	#[derive(Serialize)]
+	struct Response {
+		message: &'static str,
+	}
+
     match try_login(&state.conn, &body.username, &body.password).await {
         Ok(Some(user)) => match session.insert("user_id", user.id) {
-            Ok(()) => HttpResponse::Ok(),
-            _ => HttpResponse::BadRequest(),
+            Ok(()) => HttpResponse::Ok().into(),
+            _ => HttpResponse::BadRequest().json(Response { message: "Session error" }),
         },
-        _ => HttpResponse::Unauthorized(),
+        _ => HttpResponse::Unauthorized().json(Response { message: "Wrong username or password." }),
     }
 }
 
