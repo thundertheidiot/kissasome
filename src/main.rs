@@ -1,5 +1,6 @@
 #![deny(clippy::pedantic)]
 #![allow(clippy::missing_errors_doc)]
+#![feature(trait_alias)]
 use std::env;
 
 use actix_files::Files;
@@ -17,8 +18,11 @@ use serde::Serialize;
 use crate::user::{get, login, register};
 
 pub mod entity;
-pub mod user;
+pub mod error;
 pub mod master_password;
+pub mod user;
+
+pub use error::Error;
 
 #[derive(Serialize)]
 struct Message {

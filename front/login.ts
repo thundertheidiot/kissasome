@@ -33,12 +33,11 @@ form.addEventListener("submit", async (e) => {
     if (res.ok) {
       window.location.href = "/";
       return;
-    }
-
-    if (res.status === 401) showError("Wrong username or password.");
-    else showError(`Login failed (${res.status})`);
+    } else {
+	  res.text().then(t => showError(`Error: ${t}`));
+	}
   } catch {
-    showError("Could not reach the server.");
+    showError("Error: unable to reach the server");
   } finally {
     submit.disabled = false;
   }

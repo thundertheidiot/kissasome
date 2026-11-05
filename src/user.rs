@@ -1,28 +1,85 @@
-use crate::{AppState, entity::users};
+use std::fmt::{self, Display, Formatter};
+
+use crate::{AppState, Error, entity::users};
 use actix_session::Session;
 use actix_web::{
-    HttpResponse, Responder, get, post,
+    HttpResponse, Responder, ResponseError, get,
+    http::StatusCode,
+    post,
     web::{Data, Json},
 };
-use anyhow::anyhow;
 use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier};
 use sea_orm::{ActiveValue::Set, entity::prelude::*};
 use serde::{Deserialize, Serialize};
 
-fn validate_password(password: &str) -> bool {
-    password.len() > 7
-        && password.chars().any(|c| c.is_ascii_digit())
-        && password.chars().any(char::is_uppercase)
-        && password.chars().any(char::is_lowercase)
+type Result<T> = std::result::Result<T, Error<UserError>>;
+
+#[derive(Debug)]
+enum UserError {
+    PasswordLength,
+    PasswordDigitMissing,
+    PasswordMixedLetters,
+    NonUniqueUsername,
+    InvalidCredentials,
 }
 
-pub async fn try_register(
+impl Display for UserError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::PasswordLength => write!(f, "password must be at least 8 characters long"),
+            Self::PasswordDigitMissing => write!(f, "password must contain at least one digit"),
+            Self::PasswordMixedLetters => write!(
+                f,
+                "password must contain at least one lowercase and one uppercase letter"
+            ),
+            Self::NonUniqueUsername => write!(f, "username must be unique"),
+            Self::InvalidCredentials => write!(f, "username or password is incorrect"),
+        }
+    }
+}
+
+impl ResponseError for UserError {
+    fn status_code(&self) -> StatusCode {
+        match self {
+            Self::InvalidCredentials => StatusCode::UNAUTHORIZED,
+            _ => StatusCode::UNPROCESSABLE_ENTITY,
+        }
+    }
+}
+
+impl From<UserError> for Error<UserError> {
+    fn from(err: UserError) -> Self {
+        Self::Custom(err)
+    }
+}
+
+fn validate_password(password: &str) -> Result<()> {
+    if password.len() < 7 {
+        Err(UserError::PasswordLength.into())
+    } else if !password.chars().any(|c| c.is_ascii_digit()) {
+        Err(UserError::PasswordDigitMissing.into())
+    } else if !(password.chars().any(char::is_uppercase)
+        && password.chars().any(char::is_lowercase))
+    {
+        Err(UserError::PasswordMixedLetters.into())
+    } else {
+        Ok(())
+    }
+}
+
+async fn try_register(
     conn: &DatabaseConnection,
     username: &str,
     password: &str,
-) -> anyhow::Result<()> {
-    if !validate_password(password) {
-        return Err(anyhow!("Password doesn't meet requirements"));
+) -> Result<users::Model> {
+    validate_password(password)?;
+
+    if let Ok(Some(_user)) = users::Entity::find()
+        .filter(users::Column::Username.eq(username))
+        .one(conn)
+        .await
+    {
+        return Err(UserError::NonUniqueUsername.into());
     }
 
     let argon2 = Argon2::default();
@@ -36,16 +93,14 @@ pub async fn try_register(
         ..Default::default()
     };
 
-    let _ = user.insert(conn).await?;
-
-    Ok(())
+    Ok(user.insert(conn).await?)
 }
 
 async fn try_login(
     conn: &DatabaseConnection,
     username: &str,
     password: &str,
-) -> anyhow::Result<Option<users::Model>> {
+) -> Result<users::Model> {
     if let Some(user) = users::Entity::find()
         .filter(users::Column::Username.eq(username))
         .one(conn)
@@ -57,12 +112,12 @@ async fn try_login(
             .verify_password(password.as_bytes(), &hash)
             .is_ok()
         {
-            Ok(Some(user))
+            Ok(user)
         } else {
-            Ok(None)
+            Err(UserError::InvalidCredentials.into())
         }
     } else {
-        Ok(None)
+        Err(UserError::InvalidCredentials.into())
     }
 }
 
@@ -73,11 +128,14 @@ struct ApiUserRequest {
 }
 
 #[post("/user/register")]
-async fn register(body: Json<ApiUserRequest>, state: Data<AppState>) -> impl Responder {
-    match try_register(&state.conn, &body.username, &body.password).await {
-        Ok(()) => HttpResponse::Created().finish(),
-        Err(e) => HttpResponse::BadRequest().body(format!("Registration failed: {e:?}")),
-    }
+async fn register(
+    body: Json<ApiUserRequest>,
+    state: Data<AppState>,
+    session: Session,
+) -> Result<impl Responder> {
+    let user = try_register(&state.conn, &body.username, &body.password).await?;
+    session.insert("user_id", user.id)?;
+    Ok(HttpResponse::Created().finish())
 }
 
 #[post("/user/login")]
@@ -85,19 +143,10 @@ async fn login(
     body: Json<ApiUserRequest>,
     state: Data<AppState>,
     session: Session,
-) -> impl Responder {
-	#[derive(Serialize)]
-	struct Response {
-		message: &'static str,
-	}
-
-    match try_login(&state.conn, &body.username, &body.password).await {
-        Ok(Some(user)) => match session.insert("user_id", user.id) {
-            Ok(()) => HttpResponse::Ok().into(),
-            _ => HttpResponse::BadRequest().json(Response { message: "Session error" }),
-        },
-        _ => HttpResponse::Unauthorized().json(Response { message: "Wrong username or password." }),
-    }
+) -> Result<impl Responder> {
+    let user = try_login(&state.conn, &body.username, &body.password).await?;
+    session.insert("user_id", user.id)?;
+    Ok(HttpResponse::Ok())
 }
 
 #[derive(Serialize)]

@@ -26,7 +26,7 @@
 
       rustToolchain =
         pkgs:
-        pkgs.rust-bin.stable.latest.default.override {
+        pkgs.rust-bin.nightly.latest.default.override {
           extensions = [
             "rust-src"
             "rust-analyzer"
@@ -42,7 +42,7 @@
         pkgs:
         pkgs.mkShell {
           packages = with pkgs; [
-            make
+            gnumake
 
             # backend
             (rustToolchain pkgs)
@@ -55,7 +55,7 @@
             gcc
 
             # frontend
-            npm
+            nodejs_26
           ];
         }
       );

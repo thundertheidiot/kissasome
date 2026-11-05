@@ -33,12 +33,11 @@ form.addEventListener("submit", async (e) => {
     if (res.ok) {
       window.location.href = "/";
       return;
-    }
-
-    if (res.status === 400) showError(await res.text());
-    else showError(`Registration failed (${res.status})`);
+    } else {
+	  res.text().then(t => showError(`Error: ${t}`));
+	}
   } catch {
-    showError("Could not reach the server.");
+    showError("Error: unable to reach the server");
   } finally {
     submit.disabled = false;
   }
