@@ -1,0 +1,77 @@
+.feed {
+  max-width: 600px;
+  min-height: 100vh;
+  margin: 0 auto;
+  border-inline: 1px solid var(--border);
+}
+
+.feed__header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1rem;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.feed__brand {
+  font-weight: 700;
+}
+
+.feed__action {
+  padding: 0.45rem 1rem;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #111;
+  background: var(--accent);
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.feed__action:hover {
+  opacity: 0.85;
+}
+
+.feed__action:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.feed__list {
+  display: grid;
+}
+
+.feed__empty {
+  margin: 0;
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--muted);
+}
+
+.skeleton-card {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.skeleton-card::before {
+  content: "";
+  flex: 0 0 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--border);
+}
+
+.skeleton-card::after {
+  content: "";
+  flex: 1;
+  height: 52px;
+  border-radius: 8px;
+  background: var(--border);
+}
