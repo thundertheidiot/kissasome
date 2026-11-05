@@ -34,8 +34,8 @@ form.addEventListener("submit", async (e) => {
       window.location.href = "/";
       return;
     } else {
-	  res.text().then(t => showError(`Error: ${t}`));
-	}
+      res.text().then((t) => showError(`Error: ${t}`));
+    }
   } catch {
     showError("Error: unable to reach the server");
   } finally {
