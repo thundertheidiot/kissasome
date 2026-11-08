@@ -149,6 +149,18 @@ async fn login(
     Ok(HttpResponse::Ok())
 }
 
+#[post("/user/logout")]
+async fn logout(session: Session) -> Result<impl Responder> {
+    if session.contains_key("user_id") {
+        session
+            .remove("user_id")
+            .ok_or(Error::Internal("session error"))?;
+        Ok(HttpResponse::Ok())
+    } else {
+        Ok(HttpResponse::Unauthorized())
+    }
+}
+
 #[derive(Serialize)]
 struct GetUserResp {
     id: i64,

@@ -15,7 +15,7 @@ use migration::MigratorTrait;
 use sea_orm::{Database, DatabaseConnection};
 use serde::Serialize;
 
-use crate::user::{get, login, register};
+use crate::user::{get, login, logout, register};
 
 pub mod entity;
 pub mod error;
@@ -67,6 +67,7 @@ async fn main() -> anyhow::Result<()> {
                     .service(hello)
                     .service(register)
                     .service(login)
+                    .service(logout)
                     .service(get),
             )
             .service(

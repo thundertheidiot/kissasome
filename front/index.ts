@@ -1,7 +1,22 @@
 import "./styles/index.css";
 
 const authAction = document.querySelector<HTMLButtonElement>("#auth-action")!;
+const logOutButton = document.querySelector<HTMLButtonElement>("#log-out")!;
 const feed = document.querySelector<HTMLElement>("#feed")!;
+
+logOutButton.addEventListener("click", async () => {
+  try {
+	await fetch("/api/user/logout", {
+	  method: "POST"
+	});
+
+	window.location.href = "/";
+	return;
+  } catch {
+	window.location.href = "/";
+	return;
+  }
+});
 
 async function init() {
   let loggedIn = false;
@@ -10,13 +25,14 @@ async function init() {
     const res = await fetch("/api/user/get", { credentials: "include" });
     loggedIn = res.ok;
   } catch {
-    // Not logged in if u can't connect (401).
+    // Not logged in if you can't connect (401).
   }
 
   authAction.hidden = false;
 
   if (loggedIn) {
     authAction.textContent = "Post";
+	logOutButton.hidden = false;
     // TODO: open a message/post composer thingy.
   } else {
     authAction.textContent = "Log in";
