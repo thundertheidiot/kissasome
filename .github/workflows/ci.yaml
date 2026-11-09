@@ -1,0 +1,33 @@
+name: Checks
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run tests
+        run: echo "Running tests"
+      - uses: wimpysworld/nothing-but-nix@v12
+        with:
+          hatchet-protocol: rampage
+          nix-permission-edict: true
+      - name: Nix Installer
+        uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+          install_options: --no-daemon
+      - name: Lints and tests
+        run: |-
+          nix develop --command bash -c '
+            set -euo pipefail
+            npm i
+            make
+          '
