@@ -5,6 +5,7 @@ all: lint test
 
 lint:
 	npm run lint
+	npm run lint:css
 	cargo clippy
 
 test:
