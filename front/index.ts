@@ -6,15 +6,15 @@ const feed = document.querySelector<HTMLElement>("#feed")!;
 
 logOutButton.addEventListener("click", async () => {
   try {
-	await fetch("/api/user/logout", {
-	  method: "POST"
-	});
+    await fetch("/api/user/logout", {
+      method: "POST",
+    });
 
-	window.location.href = "/";
-	return;
+    window.location.href = "/";
+    return;
   } catch {
-	window.location.href = "/";
-	return;
+    window.location.href = "/";
+    return;
   }
 });
 
@@ -32,7 +32,7 @@ async function init() {
 
   if (loggedIn) {
     authAction.textContent = "Post";
-	logOutButton.hidden = false;
+    logOutButton.hidden = false;
     // TODO: open a message/post composer thingy.
   } else {
     authAction.textContent = "Log in";

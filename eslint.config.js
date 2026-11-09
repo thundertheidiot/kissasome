@@ -3,7 +3,7 @@
 import { defineConfig } from "eslint/config";
 import js from "@eslint/js";
 import tseslint from "typescript-eslint";
-import eslintConfigPrettier from "eslint-config-prettier";
+import prettierRecommended from "eslint-plugin-prettier/recommended";
 
 export default defineConfig([
   { ignores: ["**/dist"] },
@@ -22,5 +22,5 @@ export default defineConfig([
       },
     },
   },
-  eslintConfigPrettier,
+  prettierRecommended,
 ]);
