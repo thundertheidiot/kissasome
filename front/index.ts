@@ -133,5 +133,4 @@ async function init() {
 
   await showPosts();
 }
-
 init();
