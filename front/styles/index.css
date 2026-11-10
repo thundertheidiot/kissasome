@@ -75,3 +75,29 @@
 	border-radius: 8px;
 	background: var(--border);
 }
+
+.post {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+  min-width: 0;
+}
+
+.post-image {
+  width: 100%;
+  max-width: 100%;
+  max-height: 340px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.post-text {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.post-image-missing .post-image {
+  display: none;
+}
