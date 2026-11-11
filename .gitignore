@@ -1,6 +1,7 @@
 target
 .direnv
 local.db
+images/ # local image upload directory
 cookies.txt
 
 # Logs

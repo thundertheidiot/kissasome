@@ -1,6 +1,6 @@
 use std::fmt::{self, Debug, Display, Formatter};
 
-use actix_session::SessionInsertError;
+use actix_session::{SessionGetError, SessionInsertError};
 use actix_web::{ResponseError, http::StatusCode};
 use sea_orm::DbErr;
 
@@ -35,6 +35,12 @@ impl<C: GenericError> From<argon2::password_hash::phc::Error> for Error<C> {
 
 impl<C: GenericError> From<SessionInsertError> for Error<C> {
     fn from(_: SessionInsertError) -> Self {
+        Self::Internal("session error")
+    }
+}
+
+impl<C: GenericError> From<SessionGetError> for Error<C> {
+    fn from(_: SessionGetError) -> Self {
         Self::Internal("session error")
     }
 }

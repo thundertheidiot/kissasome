@@ -2,6 +2,7 @@
 #![allow(clippy::missing_errors_doc)]
 #![feature(trait_alias)]
 use std::env;
+use std::path::PathBuf;
 
 use actix_files::Files;
 use actix_session::SessionMiddleware;
@@ -9,38 +10,22 @@ use actix_session::storage::CookieSessionStore;
 use actix_web::cookie::Key;
 use actix_web::middleware::from_fn;
 use actix_web::web::Data;
-use actix_web::{App, HttpResponse, HttpServer, Responder, get, web};
+use actix_web::{App, HttpServer, web};
 use migration::Migrator;
 use migration::MigratorTrait;
 use sea_orm::{Database, DatabaseConnection};
-use serde::Serialize;
-
-use crate::user::{get, login, logout, register};
 
 pub mod entity;
 pub mod error;
 pub mod master_password;
+pub mod post;
 pub mod user;
 
 pub use error::Error;
-
-#[derive(Serialize)]
-struct Message {
-    message: String,
-}
-
 #[derive(Debug, Clone)]
 struct AppState {
+    image_path: PathBuf,
     conn: DatabaseConnection,
-}
-
-#[get("/hello")]
-async fn hello() -> impl Responder {
-    let message = Message {
-        message: String::from("hello world"),
-    };
-
-    HttpResponse::Ok().json(message)
 }
 
 #[actix_web::main]
@@ -52,7 +37,11 @@ async fn main() -> anyhow::Result<()> {
     let session_key = env::var("SESSION_KEY")?;
     let session_key = Key::from(session_key.as_bytes());
 
-    let state = AppState { conn };
+    let image_path: PathBuf = env::var("IMAGE_PATH")
+        .unwrap_or("./images".to_string())
+        .into();
+
+    let state = AppState { image_path, conn };
 
     HttpServer::new(move || {
         App::new()
@@ -64,12 +53,13 @@ async fn main() -> anyhow::Result<()> {
             ))
             .service(
                 web::scope("/api")
-                    .service(hello)
-                    .service(register)
-                    .service(login)
-                    .service(logout)
-                    .service(get),
+                    .service(user::register)
+                    .service(user::login)
+                    .service(user::logout)
+                    .service(user::get)
+                    .service(post::create),
             )
+            .service(Files::new("/images", "./images"))
             .service(
                 Files::new("/", "./dist")
                     .index_file("index.html")
