@@ -10,7 +10,7 @@ pub struct Model {
     pub user_id: i64,
     #[sea_orm(unique)]
     pub image: Uuid,
-    pub text: String,
+    pub text: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

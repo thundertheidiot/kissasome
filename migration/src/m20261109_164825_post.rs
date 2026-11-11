@@ -19,7 +19,7 @@ impl MigrationTrait for Migration {
                     .col(pk_auto("id").auto_increment().not_null())
                     .col(integer("user_id").not_null())
                     .col(uuid_uniq("image").not_null())
-                    .col(string("text").not_null())
+                    .col(string("text").null())
                     .foreign_key(
                         ForeignKey::create()
                             .name("fk_post_user")

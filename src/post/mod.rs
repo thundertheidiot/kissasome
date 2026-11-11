@@ -36,7 +36,7 @@ impl error::Error for PostError {}
 
 #[derive(MultipartForm)]
 struct CreatePostForm {
-    text: Text<String>,
+    text: Option<Text<String>>,
     #[multipart(limit = "20MB")]
     image: TempFile,
 }
@@ -46,7 +46,7 @@ struct PostResponse {
     id: i64,
     user_id: i64,
     image: String,
-    text: String,
+    text: Option<String>,
 }
 
 impl From<posts::Model> for PostResponse {
@@ -71,7 +71,7 @@ async fn create(
             let webp = image_to_webp(form.image, &state).await?;
             let post = posts::ActiveModel {
                 user_id: Set(uid),
-                text: Set(form.text.0),
+                text: Set(form.text.map(|t| t.0)),
                 image: Set(webp),
                 ..Default::default()
             };
