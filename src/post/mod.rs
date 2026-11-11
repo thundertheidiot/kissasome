@@ -66,6 +66,13 @@ async fn create(
     state: Data<AppState>,
     session: Session,
 ) -> Result<impl Responder> {
+    // check that text is max 200 chars
+    if let Some(text) = form.text.as_ref().map(|t| &t.0)
+        && text.len() > 200
+    {
+        return Ok(HttpResponse::Unauthorized().into());
+    }
+
     match session.get::<i64>("user_id")? {
         Some(uid) => {
             let webp = image_to_webp(form.image, &state).await?;
