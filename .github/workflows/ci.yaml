@@ -17,7 +17,7 @@ jobs:
         run: echo "Running tests"
       - uses: wimpysworld/nothing-but-nix@v12
         with:
-          hatchet-protocol: rampage
+          hatchet-protocol: cleave
           nix-permission-edict: true
       - name: Nix Installer
         uses: cachix/install-nix-action@v31
