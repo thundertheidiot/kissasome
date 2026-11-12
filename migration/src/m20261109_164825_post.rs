@@ -20,6 +20,12 @@ impl MigrationTrait for Migration {
                     .col(integer("user_id").not_null())
                     .col(uuid_uniq("image").not_null())
                     .col(string("text").null())
+                    .col(
+                        ColumnDef::new("created_at")
+                            .timestamp_with_time_zone()
+                            .not_null()
+                            .default(Expr::current_timestamp()),
+                    )
                     .foreign_key(
                         ForeignKey::create()
                             .name("fk_post_user")

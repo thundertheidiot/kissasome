@@ -7,8 +7,8 @@ use crate::entity::posts;
 use crate::{AppState, Error, post::image::image_to_webp};
 use actix_multipart::form::{MultipartForm, tempfile::TempFile, text::Text};
 use actix_session::Session;
-use actix_web::{HttpResponse, Responder, ResponseError, http::StatusCode, post, web::Data};
-use sea_orm::{ActiveModelTrait, ActiveValue::Set};
+use actix_web::{HttpResponse, Responder, ResponseError, get, http::StatusCode, post, web::Data};
+use sea_orm::{ActiveModelTrait, ActiveValue::Set, EntityTrait, QueryOrder};
 use serde::Serialize;
 
 mod image;
@@ -89,4 +89,17 @@ async fn create(
         }
         _ => Ok(HttpResponse::Unauthorized().into()),
     }
+}
+
+#[get("/post/timeline")]
+async fn timeline(state: Data<AppState>) -> Result<impl Responder> {
+    Ok(HttpResponse::Ok().json(
+        posts::Entity::find()
+            .order_by_desc(posts::Column::CreatedAt)
+            .all(&state.conn)
+            .await?
+            .into_iter()
+            .map(Into::into)
+            .collect::<Vec<PostResponse>>(),
+    ))
 }
