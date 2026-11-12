@@ -26,9 +26,9 @@ pub async fn image_to_webp(
             .with_guessed_format()?
             .decode()?;
 
-        // TODO resize etc
-        // image doesn't support lossy webp
+        // metadata isn't retained by the decode function
 
+        // image doesn't support lossy webp
         let webp = Encoder::from_image(&image)
             // from_image only returns a "Unimplemented" &str
             .map_err(|_| InvalidImage)?

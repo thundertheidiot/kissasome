@@ -162,9 +162,18 @@ async fn logout(session: Session) -> Result<impl Responder> {
 }
 
 #[derive(Serialize)]
-struct GetUserResp {
+pub struct UserResponse {
     id: i64,
     username: String,
+}
+
+impl From<users::Model> for UserResponse {
+    fn from(model: users::Model) -> Self {
+        Self {
+            id: model.id,
+            username: model.username,
+        }
+    }
 }
 
 #[get("/user/get")]
@@ -172,7 +181,7 @@ async fn get(state: Data<AppState>, session: Session) -> impl Responder {
     if let Ok(Some(uid)) = session.get::<i64>("user_id")
         && let Ok(Some(user)) = users::Entity::find_by_id(uid).one(&state.conn).await
     {
-        HttpResponse::Ok().json(GetUserResp {
+        HttpResponse::Ok().json(UserResponse {
             id: user.id,
             username: user.username,
         })

@@ -3,8 +3,14 @@ use std::{
     fmt::{self, Display, Formatter},
 };
 
-use crate::entity::posts;
 use crate::{AppState, Error, post::image::image_to_webp};
+use crate::{
+    entity::{
+        posts::{self},
+        users,
+    },
+    user::UserResponse,
+};
 use actix_multipart::form::{MultipartForm, tempfile::TempFile, text::Text};
 use actix_session::Session;
 use actix_web::{HttpResponse, Responder, ResponseError, get, http::StatusCode, post, web::Data};
@@ -18,11 +24,21 @@ type Result<T> = std::result::Result<T, Error<PostError>>;
 #[derive(Debug)]
 enum PostError {
     InvalidImage,
+    UserNotFound,
+}
+
+impl From<PostError> for Error<PostError> {
+    fn from(err: PostError) -> Self {
+        Self::Custom(err)
+    }
 }
 
 impl Display for PostError {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "")
+        match self {
+            Self::InvalidImage => write!(f, "image is invalid"),
+            Self::UserNotFound => write!(f, "couldn't find linked user"),
+        }
     }
 }
 
@@ -44,18 +60,23 @@ struct CreatePostForm {
 #[derive(Serialize)]
 struct PostResponse {
     id: i64,
-    user_id: i64,
+    user: UserResponse,
     image: String,
     text: Option<String>,
 }
 
-impl From<posts::Model> for PostResponse {
-    fn from(model: posts::Model) -> Self {
-        Self {
-            id: model.id,
-            user_id: model.user_id,
-            image: format!("/images/{}.webp", model.image),
-            text: model.text,
+impl TryFrom<(posts::Model, Option<users::Model>)> for PostResponse {
+    type Error = Error<PostError>;
+
+    fn try_from((post, user): (posts::Model, Option<users::Model>)) -> Result<Self> {
+        match user {
+            Some(user) => Ok(Self {
+                id: post.id,
+                user: user.into(),
+                image: format!("/images/{}.webp", post.image),
+                text: post.text,
+            }),
+            None => Err(PostError::UserNotFound.into()),
         }
     }
 }
@@ -70,11 +91,13 @@ async fn create(
     if let Some(text) = form.text.as_ref().map(|t| &t.0)
         && text.len() > 200
     {
-        return Ok(HttpResponse::Unauthorized().into());
+        return Err(Error::Unauthorized);
     }
 
     match session.get::<i64>("user_id")? {
         Some(uid) => {
+            let user = users::Entity::find_by_id(uid).one(&state.conn).await?;
+
             let webp = image_to_webp(form.image, &state).await?;
             let post = posts::ActiveModel {
                 user_id: Set(uid),
@@ -85,9 +108,9 @@ async fn create(
 
             let post = post.insert(&state.conn).await?;
 
-            Ok(HttpResponse::Ok().json(PostResponse::from(post)))
+            Ok(HttpResponse::Ok().json(PostResponse::try_from((post, user))?))
         }
-        _ => Ok(HttpResponse::Unauthorized().into()),
+        _ => Err(Error::Unauthorized),
     }
 }
 
@@ -96,10 +119,11 @@ async fn timeline(state: Data<AppState>) -> Result<impl Responder> {
     Ok(HttpResponse::Ok().json(
         posts::Entity::find()
             .order_by_desc(posts::Column::CreatedAt)
+            .find_also_related(users::Entity)
             .all(&state.conn)
             .await?
             .into_iter()
-            .map(Into::into)
-            .collect::<Vec<PostResponse>>(),
+            .map(PostResponse::try_from)
+            .collect::<Result<Vec<PostResponse>>>()?,
     ))
 }
