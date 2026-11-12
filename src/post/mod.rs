@@ -25,6 +25,7 @@ type Result<T> = std::result::Result<T, Error<PostError>>;
 enum PostError {
     InvalidImage,
     UserNotFound,
+    CaptionTooLong,
 }
 
 impl From<PostError> for Error<PostError> {
@@ -38,6 +39,7 @@ impl Display for PostError {
         match self {
             Self::InvalidImage => write!(f, "image is invalid"),
             Self::UserNotFound => write!(f, "couldn't find linked user"),
+            Self::CaptionTooLong => write!(f, "the caption is too long, max 200 characters"),
         }
     }
 }
@@ -91,7 +93,7 @@ async fn create(
     if let Some(text) = form.text.as_ref().map(|t| &t.0)
         && text.len() > 200
     {
-        return Err(Error::Unauthorized);
+        return Err(PostError::CaptionTooLong.into());
     }
 
     match session.get::<i64>("user_id")? {
