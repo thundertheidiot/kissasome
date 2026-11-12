@@ -15,10 +15,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run tests
         run: echo "Running tests"
-      - uses: wimpysworld/nothing-but-nix@v12
-        with:
-          hatchet-protocol: cleave
-          nix-permission-edict: true
       - name: Nix Installer
         uses: cachix/install-nix-action@v31
         with:
