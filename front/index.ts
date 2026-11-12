@@ -107,7 +107,7 @@ postForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   postError.textContent = "";
 
-  const image = postImage.files?.[0];
+  const image = postImage.files?.[ 0 ];
 
   if (!image) {
     postError.textContent = "Choose a picture first.";
@@ -158,7 +158,7 @@ async function init() {
   let loggedIn = false;
 
   try {
-    const res = await fetch("/api/user/get", {credentials: "include"});
+    const res = await fetch("/api/user/get", { credentials: "include" });
     loggedIn = res.ok;
   } catch {
     // Not logged in if you can't connect (401).
