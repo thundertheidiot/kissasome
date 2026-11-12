@@ -1,31 +1,45 @@
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link href="/front/style.css" rel="stylesheet" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Home | kissasome</title>
-	</head>
-	<body>
-		<div class="feed">
-			<header class="feed-header">
-				<span class="feed-brand">kissasome</span>
-				<button class="feed-action" id="auth-action" type="button" hidden>
-					Log in
-				</button>
-				<button class="feed-action" id="log-out" type="button" hidden>
-					Log out
-				</button>
-			</header>
 
-			<main class="feed-list" id="feed" aria-busy="true">
-				<div class="skeleton-card" aria-hidden="true"></div>
-				<div class="skeleton-card" aria-hidden="true"></div>
-				<div class="skeleton-card" aria-hidden="true"></div>
-			</main>
-		</div>
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link href="/front/style.css" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home | kissasome</title>
+</head>
 
-		<script type="module" src="/front/index.ts"></script>
-	</body>
+<body>
+  <div class="feed">
+    <header class="feed-header">
+      <span class="feed-brand">kissasome</span>
+      <button class="feed-action" id="auth-action" type="button" hidden>
+        Log in
+      </button>
+      <button class="feed-action" id="log-out" type="button" hidden>
+        Log out
+      </button>
+    </header>
+    <form id="post-form" class="post-form" hidden>
+      <label for="post-image">Cat picture</label>
+      <input id="post-image" type="file" accept="image/*" required />
+
+      <label for="post-text">Caption (optional)</label>
+      <textarea id="post-text" rows="3"></textarea>
+
+      <p id="post-error" role="alert"></p>
+
+      <button type="submit">Publish</button>
+      <button id="post-cancel" type="button">Cancel</button>
+    </form>
+    <main class="feed-list" id="feed" aria-busy="true">
+      <div class="skeleton-card" aria-hidden="true"></div>
+      <div class="skeleton-card" aria-hidden="true"></div>
+      <div class="skeleton-card" aria-hidden="true"></div>
+    </main>
+  </div>
+
+  <script type="module" src="/front/index.ts"></script>
+</body>
+
 </html>
