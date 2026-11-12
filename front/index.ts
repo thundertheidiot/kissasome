@@ -107,7 +107,7 @@ postForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   postError.textContent = "";
 
-  const image = postImage.files?.[ 0 ];
+  const image = postImage.files?.[0];
 
   if (!image) {
     postError.textContent = "Choose a picture first.";
