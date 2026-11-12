@@ -4,28 +4,18 @@ const authAction = document.querySelector<HTMLButtonElement>("#auth-action")!;
 const logOutButton = document.querySelector<HTMLButtonElement>("#log-out")!;
 const feed = document.querySelector<HTMLElement>("#feed")!;
 
-// shape the api **should** send
+const postForm = document.querySelector<HTMLFormElement>("#post-form")!;
+const postImage = document.querySelector<HTMLInputElement>("#post-image")!;
+const postText = document.querySelector<HTMLTextAreaElement>("#post-text")!;
+const postError = document.querySelector<HTMLParagraphElement>("#post-error")!;
+const postCancel = document.querySelector<HTMLButtonElement>("#post-cancel")!;
+
 type Post = {
   id: number;
-  text: string;
+  user_id: number;
+  text: string | null;
   image: string;
 };
-
-// fake posts for dev server: http://localhost:5173/?mock=1
-// this stuff will be modified or removed whenever the API is APIng
-const mockPosts: Post[] = [
-  {
-    id: 1,
-    text: "jooo hienohienohienohienohienohienohienohienohienohienohienohienohienohienohienohienohienohienohienohienohieno teksti",
-    image: "/front/assets/hero.png",
-  },
-  { id: 2, text: "toinen postaus", image: "/front/assets/hero.png" },
-  {
-    id: 3,
-    text: "kolmas eeppinen testi-postaus",
-    image: "/front/assets/hero.png",
-  },
-];
 
 logOutButton.addEventListener("click", async () => {
   try {
@@ -42,16 +32,15 @@ logOutButton.addEventListener("click", async () => {
 });
 
 async function loadPosts(): Promise<Post[]> {
-  if (import.meta.env.DEV && location.search.includes("mock")) {
-    return mockPosts;
-  }
-  const res = await fetch("/api/posts", { credentials: "include" });
+  const res = await fetch("/api/post/timeline", {
+    credentials: "include",
+  });
 
   if (!res.ok) {
-    throw new Error(`could not load posts (${res.status})`);
+    throw new Error(`Could not load posts (${res.status})`); // I fucking hate these "`", fuck typescript for making me use them
   }
-  const data = await res.json();
-  return Array.isArray(data) ? data : (data.posts ?? []);
+
+  return await res.json();
 }
 
 // build one post "card"
@@ -59,46 +48,46 @@ function makePost(post: Post) {
   const card = document.createElement("article");
   card.className = "post";
 
+  if (post.text) {
+    const text = document.createElement("p");
+    text.className = "post-text";
+    text.textContent = post.text;
+    card.append(text);
+  }
+
   const img = document.createElement("img");
   img.className = "post-image";
   img.src = post.image;
   img.loading = "lazy";
   img.onerror = () => card.classList.add("post-image-missing");
 
-  const text = document.createElement("p");
-  text.className = "post-text";
-  text.textContent = post.text;
+  card.append(img);
 
-  card.append(text, img);
   return card;
 }
 
 async function showPosts() {
+  feed.setAttribute("aria-busy", "true");
+
   try {
     const posts = await loadPosts();
 
     feed.replaceChildren();
 
-    let count = 0;
-    for (const post of posts) {
-      if (!post.image) {
-        // images are required, so a post without one is essentially "broken data". IMO, this is a cat social media, you HAVE to post cat pics
-        console.warn("skipping post without image:", post.id);
-        continue;
-      }
-      feed.append(makePost(post));
-      count++;
+    if (posts.length === 0) {
+      showMessage("No posts yet.");
+      return;
     }
 
-    if (count === 0) {
-      showMessage("No posts yet.");
+    for (const post of posts) {
+      feed.append(makePost(post));
     }
   } catch (error) {
     console.error(error);
     showMessage("Could not load posts.");
+  } finally {
+    feed.removeAttribute("aria-busy");
   }
-
-  feed.removeAttribute("aria-busy");
 }
 
 function showMessage(message: string) {
@@ -107,6 +96,63 @@ function showMessage(message: string) {
   p.textContent = message;
   feed.replaceChildren(p);
 }
+
+postCancel.addEventListener("click", () => {
+  postForm.hidden = true;
+  postForm.reset();
+  postError.textContent = "";
+});
+
+postForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  postError.textContent = "";
+
+  const image = postImage.files?.[0];
+
+  if (!image) {
+    postError.textContent = "Choose a picture first.";
+    return;
+  }
+
+  if (new TextEncoder().encode(postText.value).length > 200) {
+    postError.textContent = "Caption is too long.";
+    return; // I know the server also checks this, I added this just so that we could get a better error message than "Could not publish your post"
+  }
+
+  const data = new FormData();
+  data.append("image", image);
+
+  if (postText.value) {
+    data.append("text", postText.value);
+  }
+
+  const submit = postForm.querySelector<HTMLButtonElement>(
+    'button[type="submit"]',
+  )!;
+
+  submit.disabled = true;
+
+  try {
+    const response = await fetch("/api/post/create", {
+      method: "POST",
+      credentials: "include",
+      body: data,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Post failed (${response.status})`);
+    }
+
+    postForm.reset();
+    postForm.hidden = true;
+    await showPosts();
+  } catch (error) {
+    console.error(error);
+    postError.textContent = "Could not publish your post. Please try again.";
+  } finally {
+    submit.disabled = false;
+  }
+});
 
 async function init() {
   let loggedIn = false;
@@ -123,9 +169,14 @@ async function init() {
   if (loggedIn) {
     authAction.textContent = "Post";
     logOutButton.hidden = false;
-    // TODO: open a message/post composer thingy.
+
+    authAction.addEventListener("click", () => {
+      postForm.hidden = false;
+      postImage.focus();
+    });
   } else {
     authAction.textContent = "Log in";
+
     authAction.addEventListener("click", () => {
       window.location.href = "/login.html";
     });

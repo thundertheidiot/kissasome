@@ -3,6 +3,7 @@ target
 local.db
 images/ # local image upload directory
 cookies.txt
+*.webp
 
 # Logs
 logs
