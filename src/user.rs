@@ -181,10 +181,8 @@ async fn get(state: Data<AppState>, session: Session) -> impl Responder {
     if let Ok(Some(uid)) = session.get::<i64>("user_id")
         && let Ok(Some(user)) = users::Entity::find_by_id(uid).one(&state.conn).await
     {
-        HttpResponse::Ok().json(UserResponse {
-            id: user.id,
-            username: user.username,
-        })
+        let resp: UserResponse = user.into();
+        HttpResponse::Ok().json(resp)
     } else {
         HttpResponse::Unauthorized().into()
     }
