@@ -3,7 +3,10 @@ use std::{
     fmt::{self, Display, Formatter},
 };
 
-use crate::{AppState, Error, post::image::image_to_webp};
+use crate::{
+    AppState, Error,
+    post::image::{image_to_webp, uuid_to_path},
+};
 use crate::{
     entity::{
         posts::{self},
@@ -13,8 +16,10 @@ use crate::{
 };
 use actix_multipart::form::{MultipartForm, tempfile::TempFile, text::Text};
 use actix_session::Session;
-use actix_web::{HttpResponse, Responder, ResponseError, get, http::StatusCode, post, web::Data};
-use sea_orm::{ActiveModelTrait, ActiveValue::Set, EntityTrait, QueryOrder};
+use actix_web::{
+    HttpResponse, Responder, ResponseError, get, http::StatusCode, post, web::Data, web::Path,
+};
+use sea_orm::{ActiveModelTrait, ActiveValue::Set, EntityTrait, ModelTrait, QueryOrder};
 use serde::Serialize;
 
 mod image;
@@ -26,6 +31,7 @@ enum PostError {
     InvalidImage,
     UserNotFound,
     CaptionTooLong,
+    InvalidPostId,
 }
 
 impl From<PostError> for Error<PostError> {
@@ -40,6 +46,7 @@ impl Display for PostError {
             Self::InvalidImage => write!(f, "image is invalid"),
             Self::UserNotFound => write!(f, "couldn't find linked user"),
             Self::CaptionTooLong => write!(f, "the caption is too long, max 200 characters"),
+            Self::InvalidPostId => write!(f, "this post doesn't exist"),
         }
     }
 }
@@ -128,4 +135,34 @@ async fn timeline(state: Data<AppState>) -> Result<impl Responder> {
             .map(PostResponse::try_from)
             .collect::<Result<Vec<PostResponse>>>()?,
     ))
+}
+
+#[post("/post/delete/{post}")]
+async fn delete(
+    path: Path<i64>,
+    state: Data<AppState>,
+    session: Session,
+) -> Result<impl Responder> {
+    match (
+        session.get::<i64>("user_id")?,
+        posts::Entity::find_by_id(path.into_inner())
+            .one(&state.conn)
+            .await?,
+    ) {
+        (Some(uid), Some(post)) => {
+            if uid == post.user_id {
+                let image_path = uuid_to_path(post.image, &state);
+                tokio::fs::remove_file(image_path)
+                    .await
+                    .map_err(|_| Error::Internal("internal server error"))?;
+
+                post.delete(&state.conn).await?;
+                Ok(HttpResponse::Ok())
+            } else {
+                Err(Error::Unauthorized)
+            }
+        }
+        (Some(_), None) => Err(PostError::InvalidPostId.into()),
+        _ => Err(Error::Unauthorized),
+    }
 }
