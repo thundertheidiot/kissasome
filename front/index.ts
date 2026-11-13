@@ -3,16 +3,20 @@ import "./styles/index.css";
 const authAction = document.querySelector<HTMLButtonElement>("#auth-action")!;
 const logOutButton = document.querySelector<HTMLButtonElement>("#log-out")!;
 const feed = document.querySelector<HTMLElement>("#feed")!;
-
 const postForm = document.querySelector<HTMLFormElement>("#post-form")!;
 const postImage = document.querySelector<HTMLInputElement>("#post-image")!;
 const postText = document.querySelector<HTMLTextAreaElement>("#post-text")!;
 const postError = document.querySelector<HTMLParagraphElement>("#post-error")!;
 const postCancel = document.querySelector<HTMLButtonElement>("#post-cancel")!;
 
+let currentUserId: number | null = null;
+
 type Post = {
   id: number;
-  user_id: number;
+  user: {
+    id: number;
+    username: string;
+  };
   text: string | null;
   image: string;
 };
@@ -47,6 +51,10 @@ async function loadPosts(): Promise<Post[]> {
 function makePost(post: Post) {
   const card = document.createElement("article");
   card.className = "post";
+  const username = document.createElement("strong");
+  username.className = "post-username";
+  username.textContent = post.user.username;
+  card.append(username);
 
   if (post.text) {
     const text = document.createElement("p");
@@ -62,6 +70,40 @@ function makePost(post: Post) {
   img.onerror = () => card.classList.add("post-image-missing");
 
   card.append(img);
+
+  if (currentUserId !== null && post.user.id === currentUserId) {
+    const deleteButton = document.createElement("button");
+    deleteButton.type = "button";
+    deleteButton.className = "post-delete";
+    deleteButton.textContent = "Delete post";
+
+    deleteButton.addEventListener("click", async () => {
+      if (!window.confirm("Delete this post?")) {
+        return;
+      }
+
+      deleteButton.disabled = true;
+
+      try {
+        const response = await fetch("/api/post/delete/" + post.id, {
+          method: "POST",
+          credentials: "include",
+        });
+
+        if (!response.ok) {
+          throw new Error("Delete failed: " + response.status);
+        }
+
+        await showPosts();
+      } catch (error) {
+        console.error(error);
+        window.alert("Could not delete the post. Please try again.");
+        deleteButton.disabled = false;
+      }
+    });
+
+    card.append(deleteButton);
+  }
 
   return card;
 }
@@ -82,6 +124,11 @@ async function showPosts() {
     for (const post of posts) {
       feed.append(makePost(post));
     }
+
+    const endMessage = document.createElement("p");
+    endMessage.className = "feed-empty";
+    endMessage.textContent = "No more posts.";
+    feed.append(endMessage);
   } catch (error) {
     console.error(error);
     showMessage("Could not load posts.");
@@ -159,7 +206,11 @@ async function init() {
 
   try {
     const res = await fetch("/api/user/get", { credentials: "include" });
-    loggedIn = res.ok;
+    if (res.ok) {
+      const user = await res.json();
+      currentUserId = user.id;
+      loggedIn = true;
+    }
   } catch {
     // Not logged in if you can't connect (401).
   }
