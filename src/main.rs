@@ -59,6 +59,7 @@ async fn main() -> anyhow::Result<()> {
                     .service(user::get)
                     .service(post::create)
                     .service(post::timeline)
+                    .service(post::user_posts)
                     .service(post::delete),
             )
             .service(Files::new("/images", "./images"))

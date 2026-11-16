@@ -19,7 +19,10 @@ use actix_session::Session;
 use actix_web::{
     HttpResponse, Responder, ResponseError, get, http::StatusCode, post, web::Data, web::Path,
 };
-use sea_orm::{ActiveModelTrait, ActiveValue::Set, EntityTrait, ModelTrait, QueryOrder};
+use sea_orm::{
+    ActiveModelTrait, ActiveValue::Set, ColumnTrait, EntityTrait, ModelTrait, QueryFilter,
+    QueryOrder,
+};
 use serde::Serialize;
 
 mod image;
@@ -128,6 +131,21 @@ async fn timeline(state: Data<AppState>) -> Result<impl Responder> {
     Ok(HttpResponse::Ok().json(
         posts::Entity::find()
             .order_by_desc(posts::Column::CreatedAt)
+            .find_also_related(users::Entity)
+            .all(&state.conn)
+            .await?
+            .into_iter()
+            .map(PostResponse::try_from)
+            .collect::<Result<Vec<PostResponse>>>()?,
+    ))
+}
+
+#[get("/post/user/{user}")]
+async fn user_posts(path: Path<i64>, state: Data<AppState>) -> Result<impl Responder> {
+    Ok(HttpResponse::Ok().json(
+        posts::Entity::find()
+            .order_by_desc(posts::Column::CreatedAt)
+            .filter(posts::Column::UserId.eq(path.into_inner()))
             .find_also_related(users::Entity)
             .all(&state.conn)
             .await?
