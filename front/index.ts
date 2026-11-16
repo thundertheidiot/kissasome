@@ -1,4 +1,6 @@
 import "./styles/index.css";
+import type { Post } from "./post.ts";
+import { makePostShared } from "./post.ts";
 
 const authAction = document.querySelector<HTMLButtonElement>("#auth-action")!;
 const logOutButton = document.querySelector<HTMLButtonElement>("#log-out")!;
@@ -10,16 +12,6 @@ const postError = document.querySelector<HTMLParagraphElement>("#post-error")!;
 const postCancel = document.querySelector<HTMLButtonElement>("#post-cancel")!;
 
 let currentUserId: number | null = null;
-
-type Post = {
-  id: number;
-  user: {
-    id: number;
-    username: string;
-  };
-  text: string | null;
-  image: string;
-};
 
 logOutButton.addEventListener("click", async () => {
   try {
@@ -35,6 +27,8 @@ logOutButton.addEventListener("click", async () => {
   }
 });
 
+const makePost = (post: Post) => makePostShared(post, currentUserId, showPosts);
+
 async function loadPosts(): Promise<Post[]> {
   const res = await fetch("/api/post/timeline", {
     credentials: "include",
@@ -45,67 +39,6 @@ async function loadPosts(): Promise<Post[]> {
   }
 
   return await res.json();
-}
-
-// build one post "card"
-function makePost(post: Post) {
-  const card = document.createElement("article");
-  card.className = "post";
-  const username = document.createElement("strong");
-  username.className = "post-username";
-  username.textContent = post.user.username;
-  card.append(username);
-
-  if (post.text) {
-    const text = document.createElement("p");
-    text.className = "post-text";
-    text.textContent = post.text;
-    card.append(text);
-  }
-
-  const img = document.createElement("img");
-  img.className = "post-image";
-  img.src = post.image;
-  img.loading = "lazy";
-  img.onerror = () => card.classList.add("post-image-missing");
-
-  card.append(img);
-
-  if (currentUserId !== null && post.user.id === currentUserId) {
-    const deleteButton = document.createElement("button");
-    deleteButton.type = "button";
-    deleteButton.className = "post-delete";
-    deleteButton.textContent = "Delete post";
-
-    deleteButton.addEventListener("click", async () => {
-      if (!window.confirm("Delete this post?")) {
-        return;
-      }
-
-      deleteButton.disabled = true;
-
-      try {
-        const response = await fetch("/api/post/delete/" + post.id, {
-          method: "POST",
-          credentials: "include",
-        });
-
-        if (!response.ok) {
-          throw new Error("Delete failed: " + response.status);
-        }
-
-        await showPosts();
-      } catch (error) {
-        console.error(error);
-        window.alert("Could not delete the post. Please try again.");
-        deleteButton.disabled = false;
-      }
-    });
-
-    card.append(deleteButton);
-  }
-
-  return card;
 }
 
 async function showPosts() {

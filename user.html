@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link href="/front/style.css" rel="stylesheet" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Loading | kissasome</title>
+	</head>
+
+	<body>
+		<div class="feed">
+			<header class="feed-header">
+				<a class="feed-brand" href="/">kissasome</a>
+				<button class="feed-action" id="log-in" type="button" hidden>
+					Log in
+				</button>
+				<button class="feed-action" id="log-out" type="button" hidden>
+					Log out
+				</button>
+			</header>
+			<main class="feed-list" id="feed" aria-busy="true">
+				<div class="skeleton-card" aria-hidden="true"></div>
+				<div class="skeleton-card" aria-hidden="true"></div>
+				<div class="skeleton-card" aria-hidden="true"></div>
+			</main>
+		</div>
+
+		<script type="module" src="/front/user.ts"></script>
+	</body>
+</html>

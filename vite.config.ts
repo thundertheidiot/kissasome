@@ -11,6 +11,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: "index.html",
+        user: "user.html",
         login: "login.html",
         register: "register.html",
       },

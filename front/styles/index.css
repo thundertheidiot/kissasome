@@ -88,8 +88,18 @@
 }
 
 .post-username {
+  font-weight: bold;
   padding-right: 4rem;
   overflow-wrap: anywhere;
+}
+
+.post-username, .post-username:visited {
+	color: var(--text);
+	text-decoration: none;
+}
+
+.post-username:hover {
+	text-decoration: underline;
 }
 
 .post-image {

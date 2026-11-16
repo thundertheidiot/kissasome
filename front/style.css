@@ -21,3 +21,13 @@ body {
     15px/1.5 system-ui,
     sans-serif;
 }
+
+.feed-brand,
+.feed-brand:visited {
+	color: var(--text);
+	text-decoration: none;
+}
+
+.feed-brand:hover {
+	text-decoration: underline;
+}
