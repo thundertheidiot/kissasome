@@ -11,8 +11,8 @@
 	display: grid;
 	gap: 1rem;
 	padding: 1.75rem;
-	background: var(--surface);
-	border: 1px solid var(--border);
+	background: var(--white);
+	border: 1px solid var(--card-border);
 	border-radius: 10px;
 }
 
@@ -20,11 +20,11 @@
 	margin: 0;
 	font-size: 0.85rem;
 	text-align: center;
-	color: var(--muted);
+	color: var(--text);
 }
 
 .login-switch a {
-	color: var(--accent);
+	color: var(--text);
 }
 
 /* fields */
@@ -35,7 +35,7 @@
 
 .field-label {
 	font-size: 0.85rem;
-	color: var(--muted);
+	color: var(--text);
 }
 
 .field-input {
@@ -44,12 +44,12 @@
 	font: inherit;
 	color: var(--text);
 	background: var(--bg);
-	border: 1px solid var(--border);
+	border: 1px solid var(--peach);
 	border-radius: 8px;
 }
 
 .field-input:focus {
-	outline: 2px solid var(--accent);
+	outline: 2px solid var(--white);
 	outline-offset: 1px;
 }
 
@@ -69,7 +69,8 @@
 	padding: 0.25rem 0.5rem;
 	font: inherit;
 	font-size: 0.8rem;
-	color: var(--muted);
+	color: var(--text);
+	font-weight: bold;
 	background: none;
 	border: 0;
 	cursor: pointer;
@@ -79,8 +80,8 @@
 	padding: 0.7rem;
 	font: inherit;
 	font-weight: 600;
-	color: #111;
-	background: var(--accent);
+	color: var(--text);
+	background: var(--peach);
 	border: 0;
 	border-radius: 8px;
 	cursor: pointer;
