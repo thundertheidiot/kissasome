@@ -57,6 +57,7 @@ async fn main() -> anyhow::Result<()> {
                     .service(user::login)
                     .service(user::logout)
                     .service(user::get)
+                    .service(user::get_by_id)
                     .service(post::create)
                     .service(post::timeline)
                     .service(post::user_posts)

@@ -5,6 +5,8 @@ import { makePostShared } from "./post.ts";
 const logInButton = document.querySelector<HTMLButtonElement>("#log-in")!;
 const logOutButton = document.querySelector<HTMLButtonElement>("#log-out")!;
 
+type Profile = { username: string };
+
 const feed = document.querySelector<HTMLElement>("#feed")!;
 
 let currentUserId: number | null = null;
@@ -23,6 +25,36 @@ logOutButton.addEventListener("click", async () => {
 });
 
 const makePost = (post: Post) => makePostShared(post, currentUserId, showPosts);
+
+function setPageName(name: string) {
+  document.title = `${name} | kissasome`;
+}
+
+async function showUser() {
+  try {
+    const res = await fetch(`/api/user/get/${user}`);
+
+    if (res.status === 404) {
+      setPageName("User not found");
+      showMessage("User not found");
+      return;
+    }
+
+    if (!res.ok) {
+      throw new Error(`Could not load user (${res.status})`);
+    }
+
+    const profile: Profile = await res.json();
+    setPageName(profile.username);
+  } catch (error) {
+    console.error(error);
+    setPageName("Could not load user");
+    showMessage("Could not load user.");
+    return;
+  }
+
+  await showPosts();
+}
 
 async function showPosts() {
   feed.setAttribute("aria-busy", "true");
@@ -67,6 +99,7 @@ async function init() {
   if (paramsUser) {
     user = paramsUser;
   } else {
+    setPageName("User not found");
     showMessage("User not found");
   }
 
@@ -83,6 +116,6 @@ async function init() {
       window.location.href = "/login.html";
     });
   }
-  if (user) await showPosts();
+  if (user) await showUser();
 }
 init();

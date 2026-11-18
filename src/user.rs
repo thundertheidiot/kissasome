@@ -6,7 +6,7 @@ use actix_web::{
     HttpResponse, Responder, ResponseError, get,
     http::StatusCode,
     post,
-    web::{Data, Json},
+    web::{Data, Json, Path},
 };
 use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier};
 use sea_orm::{ActiveValue::Set, entity::prelude::*};
@@ -21,6 +21,7 @@ enum UserError {
     PasswordMixedLetters,
     NonUniqueUsername,
     InvalidCredentials,
+    UserNotFound,
 }
 
 impl Display for UserError {
@@ -34,6 +35,7 @@ impl Display for UserError {
             ),
             Self::NonUniqueUsername => write!(f, "username must be unique"),
             Self::InvalidCredentials => write!(f, "username or password is incorrect"),
+            Self::UserNotFound => write!(f, "this user doesn't exist"),
         }
     }
 }
@@ -42,6 +44,7 @@ impl ResponseError for UserError {
     fn status_code(&self) -> StatusCode {
         match self {
             Self::InvalidCredentials => StatusCode::UNAUTHORIZED,
+            Self::UserNotFound => StatusCode::NOT_FOUND,
             _ => StatusCode::UNPROCESSABLE_ENTITY,
         }
     }
@@ -185,6 +188,20 @@ async fn get(state: Data<AppState>, session: Session) -> impl Responder {
         HttpResponse::Ok().json(resp)
     } else {
         HttpResponse::Unauthorized().into()
+    }
+}
+
+#[get("/user/get/{user}")]
+async fn get_by_id(path: Path<i64>, state: Data<AppState>) -> Result<impl Responder> {
+    match users::Entity::find_by_id(path.into_inner())
+        .one(&state.conn)
+        .await?
+    {
+        Some(user) => {
+            let resp: UserResponse = user.into();
+            Ok(HttpResponse::Ok().json(resp))
+        }
+        None => Err(UserError::UserNotFound.into()),
     }
 }
 
