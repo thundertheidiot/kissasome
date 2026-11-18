@@ -10,6 +10,7 @@ const postImage = document.querySelector<HTMLInputElement>("#post-image")!;
 const postText = document.querySelector<HTMLTextAreaElement>("#post-text")!;
 const postError = document.querySelector<HTMLParagraphElement>("#post-error")!;
 const postCancel = document.querySelector<HTMLButtonElement>("#post-cancel")!;
+const status = document.querySelector<HTMLParagraphElement>("#status")!;
 
 let currentUserId: number | null = null;
 
@@ -27,7 +28,15 @@ logOutButton.addEventListener("click", async () => {
   }
 });
 
-const makePost = (post: Post) => makePostShared(post, currentUserId, showPosts);
+const makePost = (post: Post) =>
+  makePostShared(post, currentUserId, postDeleted);
+
+async function postDeleted() {
+  await showPosts();
+  feed.focus();
+  status.textContent = "Post deleted.";
+  // this status is shown to screen reader users
+}
 
 async function loadPosts(): Promise<Post[]> {
   const res = await fetch("/api/post/timeline", {
@@ -77,25 +86,47 @@ function showMessage(message: string) {
   feed.replaceChildren(p);
 }
 
+function showPostError(
+  message: string,
+  field: HTMLInputElement | HTMLTextAreaElement,
+) {
+  postError.textContent = message;
+  field.setAttribute("aria-invalid", "true");
+  field.focus();
+}
+
+function clearPostError() {
+  postError.textContent = "";
+  for (const field of [postImage, postText]) {
+    field.removeAttribute("aria-invalid");
+  }
+}
+
 postCancel.addEventListener("click", () => {
   postForm.hidden = true;
   postForm.reset();
-  postError.textContent = "";
+  clearPostError();
+  authAction.focus();
 });
 
 postForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  postError.textContent = "";
+  clearPostError();
 
   const image = postImage.files?.[0];
 
   if (!image) {
-    postError.textContent = "Choose a picture first.";
+    showPostError("Choose a picture first.", postImage);
     return;
   }
 
-  if (new TextEncoder().encode(postText.value).length > 200) {
-    postError.textContent = "Caption is too long.";
+  const textLength = new TextEncoder().encode(postText.value).length;
+
+  if (textLength > 200) {
+    showPostError(
+      `Caption is too long (${textLength}/200 characters).`,
+      postText,
+    );
     return; // I know the server also checks this, I added this just so that we could get a better error message than "Could not publish your post"
   }
 
@@ -126,6 +157,8 @@ postForm.addEventListener("submit", async (event) => {
     postForm.reset();
     postForm.hidden = true;
     await showPosts();
+    feed.focus();
+    status.textContent = "Post published.";
   } catch (error) {
     console.error(error);
     postError.textContent = "Could not publish your post. Please try again.";

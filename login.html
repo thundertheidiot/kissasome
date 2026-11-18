@@ -8,8 +8,14 @@
 		<title>Log in | kissasome</title>
 	</head>
 	<body>
+		<header class="header">
+			<a class="header-brand" href="/">kissasome</a>
+		</header>
+
 		<main class="login">
 			<form class="login-card" id="login-form">
+				<h1>Log in</h1>
+
 				<div class="field">
 					<label class="field-label" for="username">Username</label>
 					<input
@@ -19,6 +25,7 @@
 						type="text"
 						placeholder="username"
 						autocomplete="username"
+						aria-describedby="error"
 						required
 					/>
 				</div>
@@ -33,6 +40,7 @@
 							type="password"
 							placeholder="********"
 							autocomplete="current-password"
+							aria-describedby="error"
 							required
 						/>
 						<button
@@ -54,6 +62,16 @@
 				</p>
 			</form>
 		</main>
+
+		<footer class="footer">
+			<strong>
+				Kissasome - social media for cat people
+				<span aria-hidden="true">🐾</span>
+			</strong>
+			<a class="footer-contact" href="mailto:kissasome@meowcloud.net"
+				>Contact Us</a
+			>
+		</footer>
 
 		<script type="module" src="/front/login.ts"></script>
 	</body>

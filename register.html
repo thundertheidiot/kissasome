@@ -8,8 +8,13 @@
 		<title>Register | kissasome</title>
 	</head>
 	<body>
+		<header class="header">
+			<a class="header-brand" href="/">kissasome</a>
+		</header>
+
 		<main class="login">
 			<form class="login-card" id="login-form">
+				<h1>Register</h1>
 				<div class="field">
 					<label class="field-label" for="username">Username</label>
 					<input
@@ -19,6 +24,7 @@
 						type="text"
 						placeholder="username"
 						autocomplete="username"
+						aria-describedby="error"
 						required
 					/>
 				</div>
@@ -32,7 +38,8 @@
 							name="password"
 							type="password"
 							placeholder="********"
-							autocomplete="current-password"
+							autocomplete="new-password"
+							aria-describedby="password-hint error"
 							required
 						/>
 						<button
@@ -44,6 +51,10 @@
 							Show
 						</button>
 					</div>
+					<p class="field-hint" id="password-hint">
+						At least 8 characters, with a digit and both upper- and lowercase
+						letters.
+					</p>
 				</div>
 
 				<p class="login-error" id="error" role="alert" hidden></p>
@@ -54,6 +65,16 @@
 				</p>
 			</form>
 		</main>
+
+		<footer class="footer">
+			<strong>
+				Kissasome - social media for cat people
+				<span aria-hidden="true">🐾</span>
+			</strong>
+			<a class="footer-contact" href="mailto:kissasome@meowcloud.net"
+				>Contact Us</a
+			>
+		</footer>
 
 		<script type="module" src="/front/register.ts"></script>
 	</body>

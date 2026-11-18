@@ -1,26 +1,12 @@
+html {
+	scroll-padding-top: 5rem;
+}
+
 .feed {
+	flex: 1;
 	max-width: 600px;
-	min-height: 100vh;
 	margin: 0 auto;
 	border-inline: 1px solid var(--peach);
-}
-
-.feed-header {
-	position: sticky;
-	top: 0;
-	z-index: 1;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding: 0.9rem 1rem;
-	gap: 0.5rem;
-	background: var(--bg);
-	border-bottom: 1px solid var(--peach);
-}
-
-.feed-brand {
-	margin-right: auto;
-	font-weight: 700;
 }
 
 .feed-action {
@@ -40,7 +26,7 @@
 }
 
 .feed-action:focus-visible {
-	outline: 2px solid var(--white);
+	outline: 2px solid var(--text);
 	outline-offset: 2px;
 }
 
@@ -90,10 +76,15 @@
 	background-color: var(--white);
 }
 
+.post-heading {
+	margin: 0;
+	font-size: inherit;
+	justify-self: start;
+}
+
 .post-username {
 	font-weight: bold;
 	overflow-wrap: anywhere;
-	justify-self: start;
 }
 
 .post-username,
@@ -140,8 +131,14 @@
 }
 
 .post-form textarea:focus {
-	outline: none;
-	border: 1px solid var(--pink);
+	outline: 2px solid var(--text);
+	outline-offset: 2px;
+}
+
+.post-hint {
+	margin: 0;
+	font-size: 0.85rem;
+	color: var(--muted);
 }
 
 .post-form button,

@@ -9,22 +9,35 @@
 	</head>
 
 	<body>
-		<div class="feed">
-			<header class="feed-header">
-				<a class="feed-brand" href="/">kissasome</a>
-				<button class="feed-action" id="log-in" type="button" hidden>
-					Log in
-				</button>
-				<button class="feed-action" id="log-out" type="button" hidden>
-					Log out
-				</button>
-			</header>
-			<main class="feed-list" id="feed" aria-busy="true">
+		<header class="header">
+			<a class="header-brand" href="/">kissasome</a>
+			<button class="feed-action" id="auth-action" type="button" hidden>
+				Log in
+			</button>
+			<button class="feed-action" id="log-out" type="button" hidden>
+				Log out
+			</button>
+		</header>
+
+		<main>
+			<h1 class="heading" id="profile-name">Loading</h1>
+			<div class="feed-list" id="feed" tabindex="-1" aria-busy="true">
 				<div class="skeleton-card" aria-hidden="true"></div>
 				<div class="skeleton-card" aria-hidden="true"></div>
 				<div class="skeleton-card" aria-hidden="true"></div>
-			</main>
-		</div>
+			</div>
+			<p id="status" class="visually-hidden" role="status"></p>
+		</main>
+
+		<footer class="footer">
+			<strong>
+				Kissasome - social media for cat people
+				<span aria-hidden="true">🐾</span>
+			</strong>
+			<a class="footer-contact" href="mailto:kissasome@meowcloud.net"
+				>Contact Us</a
+			>
+		</footer>
 
 		<script type="module" src="/front/user.ts"></script>
 	</body>

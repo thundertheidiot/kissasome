@@ -1,45 +1,74 @@
 <!doctype html>
 <html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link href="/front/style.css" rel="stylesheet" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Home | kissasome</title>
+	</head>
 
-<head>
-  <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link href="/front/style.css" rel="stylesheet" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Home | kissasome</title>
-</head>
+	<body>
+		<header class="header">
+			<a class="header-brand" href="/">kissasome</a>
+			<button class="feed-action" id="auth-action" type="button" hidden>
+				Log in
+			</button>
+			<button class="feed-action" id="log-out" type="button" hidden>
+				Log out
+			</button>
+		</header>
 
-<body>
-  <div class="feed">
-    <header class="feed-header">
-	  <a class="feed-brand" href="/">kissasome</a>
-      <button class="feed-action" id="auth-action" type="button" hidden>
-        Log in
-      </button>
-      <button class="feed-action" id="log-out" type="button" hidden>
-        Log out
-      </button>
-    </header>
-    <form id="post-form" class="post-form" hidden>
-      <label for="post-image">Cat picture</label>
-      <input id="post-image" type="file" accept="image/*" required />
+		<main>
+			<form
+				id="post-form"
+				class="post-form"
+				aria-labelledby="post-form-title"
+				hidden
+			>
+				<h2 id="post-form-title" class="visually-hidden">New post</h2>
 
-      <label for="post-text">Caption (optional)</label>
-      <textarea id="post-text" rows="3"></textarea>
+				<label for="post-image">Cat picture</label>
+				<input
+					id="post-image"
+					type="file"
+					accept="image/*"
+					aria-describedby="post-error"
+					required
+				/>
 
-      <p id="post-error" role="alert"></p>
+				<label for="post-text">Caption (optional)</label>
+				<p id="post-text-hint" class="post-hint">Up to 200 characters.</p>
+				<textarea
+					id="post-text"
+					rows="3"
+					aria-describedby="post-text-hint post-error"
+				></textarea>
 
-      <button type="submit">Publish</button>
-      <button id="post-cancel" type="button">Cancel</button>
-    </form>
-    <main class="feed-list" id="feed" aria-busy="true">
-      <div class="skeleton-card" aria-hidden="true"></div>
-      <div class="skeleton-card" aria-hidden="true"></div>
-      <div class="skeleton-card" aria-hidden="true"></div>
-    </main>
-  </div>
+				<p id="post-error" role="alert"></p>
 
-  <script type="module" src="/front/index.ts"></script>
-</body>
+				<button type="submit">Publish</button>
+				<button id="post-cancel" type="button">Cancel</button>
+			</form>
+			<h1 class="heading">Latest posts</h1>
+			<div class="feed-list" id="feed" tabindex="-1" aria-busy="true">
+				<div class="skeleton-card" aria-hidden="true"></div>
+				<div class="skeleton-card" aria-hidden="true"></div>
+				<div class="skeleton-card" aria-hidden="true"></div>
+			</div>
+			<p id="status" class="visually-hidden" role="status"></p>
+		</main>
 
+		<footer class="footer">
+			<strong>
+				Kissasome - social media for cat people
+				<span aria-hidden="true">🐾</span>
+			</strong>
+			<a class="footer-contact" href="mailto:kissasome@meowcloud.net"
+				>Contact Us</a
+			>
+		</footer>
+
+		<script type="module" src="/front/index.ts"></script>
+	</body>
 </html>
