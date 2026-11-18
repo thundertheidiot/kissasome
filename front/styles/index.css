@@ -1,3 +1,7 @@
+html {
+	scroll-padding-top: 5rem;
+}
+
 .feed {
 	max-width: 600px;
 	min-height: 100vh;
@@ -40,7 +44,7 @@
 }
 
 .feed-action:focus-visible {
-	outline: 2px solid var(--white);
+	outline: 2px solid var(--text);
 	outline-offset: 2px;
 }
 
@@ -90,10 +94,15 @@
 	background-color: var(--white);
 }
 
+.post-heading {
+	margin: 0;
+	font-size: inherit;
+	justify-self: start;
+}
+
 .post-username {
 	font-weight: bold;
 	overflow-wrap: anywhere;
-	justify-self: start;
 }
 
 .post-username,
@@ -140,8 +149,14 @@
 }
 
 .post-form textarea:focus {
-	outline: none;
-	border: 1px solid var(--pink);
+	outline: 2px solid var(--text);
+	outline-offset: 2px;
+}
+
+.post-hint {
+	margin: 0;
+	font-size: 0.85rem;
+	color: var(--muted);
 }
 
 .post-form button,

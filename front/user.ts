@@ -8,6 +8,9 @@ const logOutButton = document.querySelector<HTMLButtonElement>("#log-out")!;
 type Profile = { username: string };
 
 const feed = document.querySelector<HTMLElement>("#feed")!;
+const profileName =
+  document.querySelector<HTMLHeadingElement>("#profile-name")!;
+const status = document.querySelector<HTMLParagraphElement>("#status")!;
 
 let currentUserId: number | null = null;
 let user: string | null = null;
@@ -24,9 +27,17 @@ logOutButton.addEventListener("click", async () => {
   }
 });
 
-const makePost = (post: Post) => makePostShared(post, currentUserId, showPosts);
+const makePost = (post: Post) =>
+  makePostShared(post, currentUserId, postDeleted);
+
+async function postDeleted() {
+  await showPosts();
+  feed.focus();
+  status.textContent = "Post deleted.";
+}
 
 function setPageName(name: string) {
+  profileName.textContent = name;
   document.title = `${name} | kissasome`;
 }
 
@@ -50,6 +61,7 @@ async function showUser() {
     console.error(error);
     setPageName("Could not load user");
     showMessage("Could not load user.");
+    feed.removeAttribute("aria-busy");
     return;
   }
 

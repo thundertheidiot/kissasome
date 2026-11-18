@@ -10,6 +10,8 @@
 	<body>
 		<main class="login">
 			<form class="login-card" id="login-form">
+				<h1>Log in</h1>
+
 				<div class="field">
 					<label class="field-label" for="username">Username</label>
 					<input
@@ -19,6 +21,7 @@
 						type="text"
 						placeholder="username"
 						autocomplete="username"
+						aria-describedby="error"
 						required
 					/>
 				</div>
@@ -33,6 +36,7 @@
 							type="password"
 							placeholder="********"
 							autocomplete="current-password"
+							aria-describedby="error"
 							required
 						/>
 						<button

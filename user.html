@@ -19,10 +19,14 @@
 					Log out
 				</button>
 			</header>
-			<main class="feed-list" id="feed" aria-busy="true">
-				<div class="skeleton-card" aria-hidden="true"></div>
-				<div class="skeleton-card" aria-hidden="true"></div>
-				<div class="skeleton-card" aria-hidden="true"></div>
+			<main>
+				<h1 class="heading" id="profile-name">Loading</h1>
+				<div class="feed-list" id="feed" tabindex="-1" aria-busy="true">
+					<div class="skeleton-card" aria-hidden="true"></div>
+					<div class="skeleton-card" aria-hidden="true"></div>
+					<div class="skeleton-card" aria-hidden="true"></div>
+				</div>
+				<p id="status" class="visually-hidden" role="status"></p>
 			</main>
 		</div>
 

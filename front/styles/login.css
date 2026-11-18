@@ -1,3 +1,8 @@
+h1 {
+	font-size: 1.5rem;
+	margin: 0;
+}
+
 .login {
 	min-height: 100vh;
 	display: grid;
@@ -44,13 +49,19 @@
 	font: inherit;
 	color: var(--text);
 	background: var(--bg);
-	border: 1px solid var(--peach);
+	border: 1px solid var(--pink-dark);
 	border-radius: 8px;
 }
 
 .field-input:focus {
-	outline: 2px solid var(--white);
+	outline: 2px solid var(--text);
 	outline-offset: 1px;
+}
+
+.field-hint {
+	margin: 0;
+	font-size: 0.8rem;
+	color: var(--muted);
 }
 
 .field-group {

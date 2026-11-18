@@ -16,26 +16,14 @@ export function makePostShared(
 ) {
   const card = document.createElement("article");
   card.className = "post";
+  const heading = document.createElement("h2");
+  heading.className = "post-heading";
   const username = document.createElement("a");
   username.href = `/user.html?user=${post.user.id}`;
   username.className = "post-username";
   username.textContent = post.user.username;
-  card.append(username);
-
-  if (post.text) {
-    const text = document.createElement("p");
-    text.className = "post-text";
-    text.textContent = post.text;
-    card.append(text);
-  }
-
-  const img = document.createElement("img");
-  img.className = "post-image";
-  img.src = post.image;
-  img.loading = "lazy";
-  img.onerror = () => card.classList.add("post-image-missing");
-
-  card.append(img);
+  heading.append(username);
+  card.append(heading);
 
   if (currentUserId !== null && post.user.id === currentUserId) {
     const deleteButton = document.createElement("button");
@@ -70,6 +58,24 @@ export function makePostShared(
 
     card.append(deleteButton);
   }
+
+  if (post.text) {
+    const text = document.createElement("p");
+    text.className = "post-text";
+    text.textContent = post.text;
+    card.append(text);
+  }
+
+  const img = document.createElement("img");
+  img.className = "post-image";
+  img.src = post.image;
+  // this is an accessibility issue
+  // i don't think requiring alt texts on user generated content would make sense
+  img.alt = "";
+  img.loading = "lazy";
+  img.onerror = () => card.classList.add("post-image-missing");
+
+  card.append(img);
 
   return card;
 }
