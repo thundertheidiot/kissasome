@@ -57,7 +57,7 @@ impl From<UserError> for Error<UserError> {
 }
 
 fn validate_password(password: &str) -> Result<()> {
-    if password.len() < 7 {
+    if password.len() < 8 {
         Err(UserError::PasswordLength.into())
     } else if !password.chars().any(|c| c.is_ascii_digit()) {
         Err(UserError::PasswordDigitMissing.into())
