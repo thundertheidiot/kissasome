@@ -41,7 +41,17 @@ async fn main() -> anyhow::Result<()> {
         .unwrap_or("./images".to_string())
         .into();
 
-    let state = AppState { image_path, conn };
+    let dist_path: PathBuf = env::var("DIST_PATH").unwrap_or("./dist".to_string()).into();
+
+    let port: u16 = env::var("PORT")
+        .ok()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(8000);
+
+    let state = AppState {
+        image_path: image_path.clone(),
+        conn,
+    };
 
     HttpServer::new(move || {
         App::new()
@@ -63,14 +73,14 @@ async fn main() -> anyhow::Result<()> {
                     .service(post::user_posts)
                     .service(post::delete),
             )
-            .service(Files::new("/images", "./images"))
+            .service(Files::new("/images", image_path.clone()))
             .service(
-                Files::new("/", "./dist")
+                Files::new("/", dist_path.clone())
                     .index_file("index.html")
                     .prefer_utf8(true),
             )
     })
-    .bind(("0.0.0.0", 8000))?
+    .bind(("0.0.0.0", port))?
     .run()
     .await?;
 
