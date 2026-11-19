@@ -15,7 +15,7 @@ h1 {
 	max-width: 340px;
 	display: grid;
 	gap: 1rem;
-	padding: 1.75rem;
+	padding: clamp(1.25rem, 5vw, 1.75rem);
 	background: var(--white);
 	border: 1px solid var(--card-border);
 	border-radius: 10px;
@@ -47,6 +47,7 @@ h1 {
 	width: 100%;
 	padding: 0.65rem 0.75rem;
 	font: inherit;
+	font-size: max(1rem, 16px);
 	color: var(--text);
 	background: var(--bg);
 	border: 1px solid var(--pink-dark);

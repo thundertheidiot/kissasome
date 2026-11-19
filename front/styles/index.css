@@ -24,6 +24,7 @@ html {
 
 .feed-brand {
 	margin-right: auto;
+	padding-block: 0.25rem;
 	font-weight: 700;
 }
 
@@ -83,8 +84,9 @@ html {
 }
 
 .post {
-	position: relative;
 	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	align-items: start;
 	gap: 0.75rem;
 	padding: 1rem;
 	margin: 16px;
@@ -94,7 +96,15 @@ html {
 	background-color: var(--white);
 }
 
+/* every row spans the card; the heading and delete button share the first */
+.post > * {
+	grid-column: 1 / -1;
+}
+
 .post-heading {
+	grid-row: 1;
+	grid-column: 1;
+	min-width: 0;
 	margin: 0;
 	font-size: inherit;
 	justify-self: start;
@@ -122,6 +132,17 @@ html {
 	border-radius: 12px;
 }
 
+@media (width <= 480px) {
+	.heading {
+		margin-inline: 12px;
+	}
+
+	.post {
+		margin: 12px;
+		padding: 0.85rem;
+	}
+}
+
 .post-text {
 	margin: 0;
 	white-space: pre-wrap;
@@ -143,6 +164,7 @@ html {
 	width: 100%;
 	padding: 0.5rem;
 	font: inherit;
+	font-size: max(1rem, 16px);
 	background-color: var(--textarea);
 	border: 1px solid var(--text);
 	border-radius: 5px;
@@ -179,9 +201,8 @@ html {
 }
 
 .post-delete {
-	position: absolute;
-	top: 1rem;
-	right: 1rem;
+	grid-row: 1;
+	grid-column: 2;
 	font: inherit;
 	font-size: 0.7rem;
 	color: var(--white);
