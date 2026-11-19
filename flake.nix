@@ -36,7 +36,48 @@
         };
     in
     {
-      packages = forAllSystems (pkgs: { });
+      packages = forAllSystems (
+        pkgs:
+        let
+          rustPlatform = pkgs.makeRustPlatform {
+            cargo = rustToolchain pkgs;
+            rustc = rustToolchain pkgs;
+          };
+
+          src = ./.;
+
+          dist = pkgs.buildNpmPackage {
+            pname = "kissasome-dist";
+            version = "0.1.0";
+            inherit src;
+            nodejs = pkgs.nodejs_26;
+            npmDepsHash = "sha256-Mhju4oo1EpAHCFwk3fY7dGIe3GfQKRyP9YmtEMtvNZc=";
+            installPhase = "cp -r dist $out";
+          };
+        in
+        {
+          inherit dist;
+
+          default = rustPlatform.buildRustPackage {
+            pname = "kissasome";
+            version = "0.1.0";
+            inherit src;
+            cargoLock.lockFile = ./Cargo.lock;
+            nativeBuildInputs = with pkgs; [
+              pkg-config
+              makeWrapper
+            ];
+            buildInputs = [ pkgs.sqlite ];
+            doCheck = false;
+            postInstall = ''
+              mkdir -p $out/
+              ln -s ${dist} $out/dist
+              wrapProgram $out/bin/kissasome --set-default DIST_PATH $out/dist
+            '';
+            meta.mainProgram = "kissasome";
+          };
+        }
+      );
 
       devShell = forAllSystems (
         pkgs:
